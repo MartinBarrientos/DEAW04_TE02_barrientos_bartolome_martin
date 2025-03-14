@@ -1,0 +1,57 @@
+# Versión utilizada
+# version: '3'
+
+# Configuración de los servidores que vamos a necesitar
+services: 
+ 
+  # mysql es el nombre que vamos a dar a este primer servicio
+  # Será el nombre que tendremos que usar cuando nos refiramos a él
+  mysql:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: dwes
+      MYSQL_PASSWORD: dwes
+      MYSQL_DATABASE: dwes
+    volumes:
+      - ./UD4-despliegue/mysql/:/docker-entrypoint-initdb.d/
+
+  apache:
+    build: apache/
+    ports:
+      - 80:80
+    volumes:
+      - proyecto:/var/www/html/
+
+  php:
+    build: php/
+    ports:
+      - 9000:9000
+    volumes:
+      - proyecto:/var/www/html/
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root
+  wordpress:
+    image: wordpress
+    ports:
+      - 81:80
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./temas/:/var/www/html/wp-content/themes/
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_NAME: dwes
+      WORDPRESS_DB_USER: dwes
+      WORDPRESS_DB_PASSWORD: dwes
+
+volumes: 
+  proyecto:
+  wordpress_data:
